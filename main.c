@@ -133,9 +133,10 @@ void initializeDefender(TypeDefender Defender)
   SDL_Rect pos;
   pos.w=SPRITEWIDTH;
   pos.h=SPRITEHEIGHT;
-  pos.x=100;
-  pos.y=100;
-  Defender.frame=0;
+  pos.x=400;
+  pos.y=500;
+  Defender.pos=pos;
+  Defender.frame=1;
   Defender.alive = TRUE;
 
 }
@@ -147,14 +148,14 @@ void updateDefender(TypeDefender Defender)
 // Drawing defender
 void drawDefender(SDL_Renderer *ren, SDL_Texture *tex,TypeDefender Defender)
 {
-  SDL_Rect SrcR;
-  SrcR.x=0;
-  SrcR.y=0;
-  SrcR.w=88;
-  SrcR.h=64;
+  SDL_Rect Source1;
+  Source1.x=0;
+  Source1.y=0;
+  Source1.w=88;
+  Source1.h=64;
   SDL_SetRenderDrawColor(ren, 255, 0, 0, 255);
   SDL_RenderFillRect(ren,&Defender.pos);
-  SDL_RenderCopy(ren, tex,&SrcR, &Defender.pos);
+  SDL_RenderCopy(ren, tex,&Source1, &Defender.pos);
 
 }
 
