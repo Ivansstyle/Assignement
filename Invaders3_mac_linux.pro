@@ -6,6 +6,8 @@ CONFIG += console c++11
 CONFIG -= app_bundle
 CONFIG -= qt
 SOURCES += main.c
+HEADERS += invader.h
+
 cache()
 
 
@@ -31,4 +33,3 @@ unix:!macx{ ## Libs for unix
 QMAKE_CFLAGS+=-std=c99
 message(output from sdl2-config --cflags added to CXXFLAGS= $$QMAKE_CFLAGS)
 
-HEADERS +=\invader.h

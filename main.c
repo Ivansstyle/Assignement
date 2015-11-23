@@ -3,7 +3,7 @@
 #include <SDL_image.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "Invader.h"
+#include "invader.h"
 
 
 
@@ -15,14 +15,24 @@
 // an enumeration for direction to move USE more enums!
 enum DIRECTION{UP,DOWN,LEFT,RIGHT,NONE};
 
+
+
+void initializeDefender(TypeDefender Defender);
+void updateDefender(TypeDefender Defender);
+void drawDefender(SDL_Renderer *ren, SDL_Texture *tex,TypeDefender Defender);
+
+
+
 void initializeInvaders(Invader invaders[ROWS][COLS]);
 void updateInvaders(Invader invaders[ROWS][COLS]);
-
 void drawInvaders(SDL_Renderer *ren,SDL_Texture *tex,Invader invaders[ROWS][COLS]);
 
 int main()
 {
   Invader invaders[ROWS][COLS];
+  TypeDefender Defender;
+
+  initializeDefender(Defender);
   initializeInvaders(invaders);
   // initialise SDL and check that it worked otherwise exit
   // see here for details http://wiki.libsdl.org/CategoryAPI
@@ -58,7 +68,7 @@ int main()
   SDL_Surface *image;
 //  // we are going to use the extension SDL_image library to load a png, documentation can be found here
 //  // http://www.libsdl.org/projects/SDL_image/
-  image=IMG_Load("/Users/ivansstyle/Coding/Invaders2/Invaders3/InvaderA2.bmp");
+  image=IMG_Load("InvaderA2.bmp");
   if(!image)
   {
     printf("IMG_Load: %s\n", IMG_GetError());
@@ -101,8 +111,13 @@ int main()
   // now we clear the screen (will use the clear colour set previously)
   SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
   SDL_RenderClear(ren);
+  updateDefender(Defender);
   updateInvaders(invaders);
   drawInvaders(ren,tex,invaders);
+
+  drawDefender(ren,tex,Defender);
+
+
   // Up until now everything was drawn behind the scenes.
   // This will show the new, red contents of the window.
   SDL_RenderPresent(ren);
@@ -112,7 +127,36 @@ int main()
   SDL_Quit();
   return 0;
 }
+// Inintialising Defender.
+void initializeDefender(TypeDefender Defender)
+{
+  SDL_Rect pos;
+  pos.w=SPRITEWIDTH;
+  pos.h=SPRITEHEIGHT;
+  pos.x=100;
+  pos.y=100;
+  Defender.frame=0;
+  Defender.alive = TRUE;
 
+}
+//Updating defender
+void updateDefender(TypeDefender Defender)
+{
+
+}
+// Drawing defender
+void drawDefender(SDL_Renderer *ren, SDL_Texture *tex,TypeDefender Defender)
+{
+  SDL_Rect SrcR;
+  SrcR.x=0;
+  SrcR.y=0;
+  SrcR.w=88;
+  SrcR.h=64;
+  SDL_SetRenderDrawColor(ren, 255, 0, 0, 255);
+  SDL_RenderFillRect(ren,&Defender.pos);
+  SDL_RenderCopy(ren, tex,&SrcR, &Defender.pos);
+
+}
 
 void initializeInvaders(Invader invaders[ROWS][COLS])
 {
@@ -169,6 +213,7 @@ void drawInvaders(SDL_Renderer *ren, SDL_Texture *tex, Invader invaders[ROWS][CO
     }
   }
 }
+
 
 void updateInvaders(Invader invaders[ROWS][COLS])
 {
