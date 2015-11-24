@@ -22,14 +22,14 @@ typedef struct
 
 
 //Creating a new structure for the defender;
-enum InputControl{MOVE_LEFT,MOVE_RIGHT,SHOOT};
+enum InputControl{NONE,MOVE_LEFT,MOVE_RIGHT,SHOOT};
 
 typedef struct
 {
     SDL_Rect pos; //chech for correctness!
     enum defenderBOOL alive; //if 0 = print game over on the screen
     enum InputControl defender_event;
-    int frame;
+
 }TypeDefender;
 
 //Structure for info display;

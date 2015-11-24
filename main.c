@@ -13,26 +13,25 @@
 // the height of the screen taking into account the maze and block
 #define HEIGHT 600
 // an enumeration for direction to move USE more enums!
-enum DIRECTION{UP,DOWN,LEFT,RIGHT,NONE};
 
+void PrintDebug(TypeDefender Defender);
 
-
-void initializeDefender(TypeDefender Defender);
-void updateDefender(TypeDefender Defender);
-void drawDefender(SDL_Renderer *ren, SDL_Texture *tex,TypeDefender Defender);
+void initializeDefender(TypeDefender *Defender);
+void updateDefender(TypeDefender *Defender);
+void drawDefender(SDL_Renderer *ren, SDL_Texture *tex,TypeDefender *Defender);
 
 
 
 void initializeInvaders(Invader invaders[ROWS][COLS]);
 void updateInvaders(Invader invaders[ROWS][COLS]);
-void drawInvaders(SDL_Renderer *ren,SDL_Texture *tex,Invader invaders[ROWS][COLS]);
+void drawInvaders(SDL_Renderer *ren, SDL_Texture *tex,Invader invaders[ROWS][COLS]);
 
 int main()
 {
   Invader invaders[ROWS][COLS];
   TypeDefender Defender;
 
-  initializeDefender(Defender);
+  initializeDefender(&Defender);
   initializeInvaders(invaders);
   // initialise SDL and check that it worked otherwise exit
   // see here for details http://wiki.libsdl.org/CategoryAPI
@@ -103,19 +102,31 @@ int main()
         {
         // if we have an escape quit
         case SDLK_ESCAPE : quit=1; break;
-
-       }
-    }
+        }
+      }
+      if (event.type == SDLK_LEFT)
+      {
+         Defender.defender_event = MOVE_LEFT;
+      }
+      else if (event.type == SDLK_RIGHT)
+      {
+          Defender.defender_event = MOVE_RIGHT;
+      }
+      else if (event.type == SDLK_SPACE)
+      {
+          Defender.defender_event = SHOOT;
+      }
+     // else Defender.defender_event = NONE;
   }
+    PrintDebug(Defender);
 
   // now we clear the screen (will use the clear colour set previously)
   SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
   SDL_RenderClear(ren);
-  updateDefender(Defender);
+  //updateDefender(Defender);
   updateInvaders(invaders);
   drawInvaders(ren,tex,invaders);
-
-  drawDefender(ren,tex,Defender);
+  drawDefender(ren,tex,&Defender);
 
 
   // Up until now everything was drawn behind the scenes.
@@ -128,24 +139,39 @@ int main()
   return 0;
 }
 // Inintialising Defender.
-void initializeDefender(TypeDefender Defender)
+void initializeDefender(TypeDefender *Defender)
 {
   SDL_Rect pos;
   pos.w=SPRITEWIDTH;
   pos.h=SPRITEHEIGHT;
-  pos.x=100;
-  pos.y=100;
-  Defender.frame=0;
-  Defender.alive = TRUE;
+  pos.x=WIDTH/2-30;
+  pos.y=HEIGHT-50;
+
+  Defender->alive = TRUE;
+  Defender->pos = pos;
 
 }
 //Updating defender
-void updateDefender(TypeDefender Defender)
+void updateDefender(TypeDefender *Defender)
 {
-
+    if (Defender->defender_event == MOVE_LEFT)
+    {
+        if (Defender->pos.x > 0)
+        {
+            Defender->pos.x-=5;
+        }
+    }
+    if (Defender->defender_event == MOVE_RIGHT)
+    {
+        if (Defender->pos.x < WIDTH - SPRITEWIDTH)
+        {
+            Defender->pos.x+=5;
+        }
+    }
 }
+
 // Drawing defender
-void drawDefender(SDL_Renderer *ren, SDL_Texture *tex,TypeDefender Defender)
+void drawDefender(SDL_Renderer *ren, SDL_Texture *tex,TypeDefender *Defender)
 {
   SDL_Rect SrcR;
   SrcR.x=0;
@@ -153,10 +179,12 @@ void drawDefender(SDL_Renderer *ren, SDL_Texture *tex,TypeDefender Defender)
   SrcR.w=88;
   SrcR.h=64;
   SDL_SetRenderDrawColor(ren, 255, 0, 0, 255);
-  SDL_RenderFillRect(ren,&Defender.pos);
-  SDL_RenderCopy(ren, tex,&SrcR, &Defender.pos);
+  SDL_RenderFillRect(ren,&Defender->pos);
+  SDL_RenderCopy(ren, tex,&SrcR, &Defender->pos);
 
 }
+
+
 
 void initializeInvaders(Invader invaders[ROWS][COLS])
 {
@@ -245,4 +273,17 @@ void updateInvaders(Invader invaders[ROWS][COLS])
 
     }
   }
+}
+
+void PrintDebug(TypeDefender Defender)
+{
+    if (Defender.defender_event == SHOOT){
+        printf("Defender: command shoot");
+    }
+    if (Defender.defender_event == MOVE_LEFT){
+        printf ("Defender: command left");
+    }
+    if (Defender.defender_event == MOVE_RIGHT){
+        printf("Defender: command right");
+    }
 }
