@@ -356,7 +356,8 @@ void updateInvaders(Invader invaders[ROWS][COLS])
 
   // Checking if the col is active or inactive
   // And setting number of inactive cols from left
-  int cols_inactive_R = 0; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!111
+  int cols_inactive_R = 0;
+  // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!111
 
   for (int c = COLS -1; c >=0; --c)
   {
@@ -369,7 +370,8 @@ void updateInvaders(Invader invaders[ROWS][COLS])
     if (inactive == ROWS)
       cols_inactive_R +=1;
     else break;
-  }//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  }
+  // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   if(invaders[0][COLS - cols_inactive_R].pos.x>=(WIDTH-SPRITEWIDTH)-(COLS*(SPRITEWIDTH+GAP)))
   {
     DIRECTION=BWD;
