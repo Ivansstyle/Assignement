@@ -321,7 +321,7 @@ void drawInvaders(SDL_Renderer *ren, SDL_Texture *tex, Invader invaders[ROWS][CO
       case TYPE2 : SDL_SetRenderDrawColor(ren, 0, 255, 0, 255); break;
       case TYPE3 : SDL_SetRenderDrawColor(ren, 0, 0, 255, 255); break;
       }
-      if (invaders[r][c].active == 1)
+      if (invaders[r][c].active == 1) //If invader is not active - then not draw!
       {
           SDL_RenderFillRect(ren,&invaders[r][c].pos);
           SDL_RenderCopy(ren, tex,&SrcR,&invaders[r][c].pos);
@@ -336,13 +336,47 @@ void updateInvaders(Invader invaders[ROWS][COLS])
   enum DIR{FWD,BWD};
   static int DIRECTION=FWD;
   int yinc=0;
-  if(invaders[0][COLS].pos.x>=(WIDTH-SPRITEWIDTH)-(COLS*(SPRITEWIDTH+GAP)))
+
+  // Checking if the col is active or inactive
+  // And setting number of inactive cols from right
+  int cols_inactive_L = 0;
+
+  for (int c = 0; c < COLS; ++c)
+  {
+    int inactive = 0;
+    for (int r = 0; r< ROWS; ++r)
+    {
+      if (invaders[r][c].active == 0)
+        inactive +=1;
+    }
+    if (inactive == ROWS)
+      cols_inactive_L += 1;
+    else break;
+  }
+
+  // Checking if the col is active or inactive
+  // And setting number of inactive cols from left
+  int cols_inactive_R = 0; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!111
+
+  for (int c = COLS -1; c >=0; --c)
+  {
+    int inactive = 0;
+    for (int r = 0; r< ROWS; ++r)
+    {
+      if (invaders[r][c].active == 0)
+        inactive +=1;
+    }
+    if (inactive == ROWS)
+      cols_inactive_R +=1;
+    else break;
+  }//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  if(invaders[0][COLS - cols_inactive_R].pos.x>=(WIDTH-SPRITEWIDTH)-(COLS*(SPRITEWIDTH+GAP)))
   {
     DIRECTION=BWD;
     yinc=GAP;
 
   }
-  else if(invaders[0][0].pos.x<=SPRITEWIDTH)
+  else if(invaders[0][cols_inactive_L].pos.x<=SPRITEWIDTH)
   {
     DIRECTION=FWD;
     yinc=GAP;
@@ -357,7 +391,9 @@ void updateInvaders(Invader invaders[ROWS][COLS])
         invaders[r][c].pos.x+=1;
       else
         invaders[r][c].pos.x-=1;
+
       invaders[r][c].pos.y+=yinc;
+
     }
   }
 }
