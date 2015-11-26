@@ -13,9 +13,9 @@ enum InputControl{NONE,MOVE_LEFT,MOVE_RIGHT,SHOOT};
 #define ROWS 5
 #define GAP 10
 #define DefenderSPEED 30
-#define MissileSPEED 5
+#define MissileSPEED 7
 
-//Creating a new structure for the defender
+//Invader Structure
 typedef struct
 {
   SDL_Rect pos;
@@ -24,22 +24,37 @@ typedef struct
   enum InvaderType type;
 }Invader;
 
-//Missile structure
-typedef struct{
+//Missile Structure
+typedef struct
+{
     SDL_Rect pos;
     enum BOOL active;
 }TypeMissile;
 
-
-
+//Defender Structure
 typedef struct
 {
-    SDL_Rect pos; //chech for correctness!
+    SDL_Rect pos;
     enum BOOL alive; //if 0 = print game over on the screen
     enum InputControl defender_event;
-
 }TypeDefender;
 
-//Structure for info display;
+// Function Declaration
+void PrintDebug(TypeDefender *Defender);
+void Controls(TypeDefender *Defender);
+
+void initializeDefender(TypeDefender *Defender);
+void initializeMissile(TypeMissile *Missile);
+void initializeInvaders(Invader invaders[ROWS][COLS]);
+
+void drawDefender(SDL_Renderer *ren, SDL_Texture *tex,TypeDefender *Defender);
+void drawMissile(SDL_Renderer *ren, SDL_Texture *tex,TypeMissile *Missile);
+void drawInvaders(SDL_Renderer *ren, SDL_Texture *tex,Invader invaders[ROWS][COLS]);
+
+void updateInvaders(Invader invaders[ROWS][COLS]);
+void updateDefender(TypeDefender *Defender,TypeMissile *Missile);
+
+void CollisionDetection(Invader invaders[ROWS][COLS], TypeMissile *Missile);
+
 #endif
 
