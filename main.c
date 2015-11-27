@@ -268,8 +268,11 @@ void drawMissile(SDL_Renderer *ren, SDL_Texture *tex,TypeMissile *Missile)
   SrcR.w=88;
   SrcR.h=64;
   SDL_SetRenderDrawColor(ren, 255, 0, 0, 255);
-  SDL_RenderFillRect(ren,&Missile->pos);
-  SDL_RenderCopy(ren, tex,&SrcR, &Missile->pos);
+  if (Missile->active == TRUE)
+    {
+      SDL_RenderFillRect(ren,&Missile->pos);
+      SDL_RenderCopy(ren, tex,&SrcR, &Missile->pos);
+    }
 }
 
 //Initialize Invaders
@@ -371,28 +374,45 @@ void updateInvaders(Invader invaders[ROWS][COLS])
       cols_inactive_R +=1;
     else break;
   }
+  int speed_inc = 0;
+  static int cycle = 0;
   // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  if(invaders[0][COLS - cols_inactive_R].pos.x>=(WIDTH-SPRITEWIDTH)-(COLS*(SPRITEWIDTH+GAP)))
+  if(invaders[0][COLS-1 - cols_inactive_R].pos.x>= (WIDTH - GAP) - SPRITEWIDTH)
   {
     DIRECTION=BWD;
     yinc=GAP;
-
+    printf("invader 0 - COLS pos.x = %d \n invader 0 - COLS - 1 pos.x = %d\n",invaders[0][COLS].pos.x, invaders[0][COLS -1].pos.x);
+    speed_inc = 1;
+      cycle += 1;
   }
   else if(invaders[0][cols_inactive_L].pos.x<=SPRITEWIDTH)
   {
     DIRECTION=FWD;
     yinc=GAP;
-
+      cycle += 1;
   }
 
+
+  static int invader_speed = SPEED;
+  int speed_round = cycle % 5;
+  if (cycle != 0)
+      {
+      if (speed_round == 0)
+          {
+          if (speed_inc == 1)
+            {
+                invader_speed +=1;
+            }
+          }
+      }
   for(int r=0; r<ROWS; ++r)
   {
     for(int c=0; c<COLS; ++c)
     {
       if(DIRECTION==FWD)
-        invaders[r][c].pos.x+=1;
+        invaders[r][c].pos.x+=invader_speed;
       else
-        invaders[r][c].pos.x-=1;
+        invaders[r][c].pos.x-=invader_speed;
 
       invaders[r][c].pos.y+=yinc;
 
