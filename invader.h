@@ -15,6 +15,8 @@ enum InputControl{NONE,MOVE_LEFT,MOVE_RIGHT,SHOOT};
 #define DefenderSPEED 30
 #define MissileSPEED 7
 #define SPEED 1
+#define ANIMATIONSPEED 15
+
 //Invader Structure
 typedef struct
 {

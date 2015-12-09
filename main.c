@@ -105,7 +105,7 @@ int main()
   return EXIT_SUCCESS;
 }
 
-// Inintialising Defender.
+// Inintialising Defender..
 void initializeDefender(TypeDefender *Defender)
 {
   SDL_Rect pos;
@@ -120,7 +120,7 @@ void initializeDefender(TypeDefender *Defender)
 
 }
 
-//Initializing Missile
+//Initializing Defender Missile
 void initializeMissile(TypeMissile *Missile)
 {
     SDL_Rect pos;
@@ -132,6 +132,38 @@ void initializeMissile(TypeMissile *Missile)
     Missile->active = FALSE;
     Missile->pos = pos;
 }
+
+//Initialize Invaders AND Missiles !!1!
+void initializeInvaders(Invader invaders[ROWS][COLS])
+{
+  SDL_Rect pos;
+  pos.w=SPRITEWIDTH;
+  pos.h=SPRITEHEIGHT;
+  int ypos=GAP;
+
+  for(int r=0; r<ROWS; ++r)
+  {
+    int xpos=GAP;
+    for(int c=0; c<COLS; ++c)
+    {
+      pos.x=xpos+SPRITEWIDTH;
+      pos.y=ypos+SPRITEHEIGHT;
+      xpos+=(GAP+SPRITEWIDTH);
+      invaders[r][c].pos=pos;
+      invaders[r][c].active=1;
+      invaders[r][c].frame=0;
+      if(r==0)
+        invaders[r][c].type=TYPE1;
+      else if(r==1 || r==2)
+        invaders[r][c].type=TYPE2;
+      else
+        invaders[r][c].type=TYPE3;
+
+    }
+    ypos+=(GAP+SPRITEHEIGHT);
+  }
+}
+
 
 //Updating defender/Missile
 void updateDefender(TypeDefender *Defender, TypeMissile *Missile)
@@ -153,8 +185,6 @@ void updateDefender(TypeDefender *Defender, TypeMissile *Missile)
     }
 
 
-
-
     if (Missile->active == FALSE)
     {
         Missile->pos.x = Defender->pos.x + ((Defender->pos.w - Missile->pos.w) / 2);
@@ -171,7 +201,7 @@ void updateDefender(TypeDefender *Defender, TypeMissile *Missile)
         {
             Missile->pos.y = Missile->pos.y - MissileSPEED;
         }
-        else {Missile->active = FALSE;}
+        else Missile->active = FALSE;  //cycle += 1;
 
        Defender->defender_event = NONE;
        if (Missile->active == TRUE){
@@ -275,45 +305,41 @@ void drawMissile(SDL_Renderer *ren, SDL_Texture *tex,TypeMissile *Missile)
     }
 }
 
-//Initialize Invaders
-void initializeInvaders(Invader invaders[ROWS][COLS])
-{
-  SDL_Rect pos;
-  pos.w=SPRITEWIDTH;
-  pos.h=SPRITEHEIGHT;
-  int ypos=GAP;
-
-  for(int r=0; r<ROWS; ++r)
-  {
-    int xpos=GAP;
-    for(int c=0; c<COLS; ++c)
-    {
-      pos.x=xpos+SPRITEWIDTH;
-      pos.y=ypos+SPRITEHEIGHT;
-      xpos+=(GAP+SPRITEWIDTH);
-      invaders[r][c].pos=pos;
-      invaders[r][c].active=1;
-      invaders[r][c].frame=0;
-      if(r==0)
-        invaders[r][c].type=TYPE1;
-      else if(r==1 || r==2)
-        invaders[r][c].type=TYPE2;
-      else
-        invaders[r][c].type=TYPE3;
-
-    }
-    ypos+=(GAP+SPRITEHEIGHT);
-  }
-}
 
 //Draw Invaders
 void drawInvaders(SDL_Renderer *ren, SDL_Texture *tex, Invader invaders[ROWS][COLS])
 {
+   static int animation = 0;
+   static int iterations = 0;
+   ++iterations;
+   static int sprite_y;
+   int speed = ANIMATIONSPEED;
+
+  if ((iterations % speed==0 && animation == 0)||(iterations % speed==0 && animation == 2))
+  {
+      sprite_y = 64;
+      ++animation;
+  }
+  else if (iterations%speed==0 && animation == 1)
+  {
+
+      sprite_y=128;
+      ++animation;
+
+  }
+  else if (iterations%speed ==0 && animation == 3)
+  {
+      sprite_y=0;
+      animation =0;
+  }
+
   SDL_Rect SrcR;
   SrcR.x=0;
-  SrcR.y=0;
+  SrcR.y=sprite_y;
   SrcR.w=88;
   SrcR.h=64;
+
+
   for(int r=0; r<ROWS; ++r)
   {
     for(int c=0; c<COLS; ++c)
@@ -332,6 +358,10 @@ void drawInvaders(SDL_Renderer *ren, SDL_Texture *tex, Invader invaders[ROWS][CO
     }
   }
 }
+
+
+
+//PLAN!! update to invader/missile
 
 //Updating Invaders
 void updateInvaders(Invader invaders[ROWS][COLS])
@@ -360,7 +390,6 @@ void updateInvaders(Invader invaders[ROWS][COLS])
   // Checking if the col is active or inactive
   // And setting number of inactive cols from left
   int cols_inactive_R = 0;
-  // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!111
 
   for (int c = COLS -1; c >=0; --c)
   {
@@ -376,7 +405,7 @@ void updateInvaders(Invader invaders[ROWS][COLS])
   }
   int speed_inc = 0;
   static int cycle = 0;
-  // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  // FOUND THE BUG!! <3
   if(invaders[0][COLS-1 - cols_inactive_R].pos.x>= (WIDTH - GAP) - SPRITEWIDTH)
   {
     DIRECTION=BWD;
@@ -420,7 +449,7 @@ void updateInvaders(Invader invaders[ROWS][COLS])
   }
 }
 
-//Debugging finction
+//Debugging function
 void PrintDebug(TypeDefender *Defender)
 {
     if (Defender->defender_event == SHOOT){
@@ -434,7 +463,7 @@ void PrintDebug(TypeDefender *Defender)
     }
 }
 
-//All SDL_Events now moved here,so not to interrupt with other calculations and for easy access.
+//All SDL_Events now moved here, for easy access.
 void Controls(TypeDefender *Defender)
 {
     SDL_Event event;
@@ -452,13 +481,14 @@ void Controls(TypeDefender *Defender)
         // if we have an escape quit
         case SDLK_ESCAPE : quit=1;
             break;
-
+        case SDLK_SPACE : Defender->defender_event = SHOOT;
+            break;
         case SDLK_LEFT : Defender->defender_event = MOVE_LEFT;
             break;
         case SDLK_RIGHT : Defender->defender_event = MOVE_RIGHT;
             break;
-        case SDLK_SPACE : Defender->defender_event = SHOOT;
-            break;
+
+
         }
       }
     }
