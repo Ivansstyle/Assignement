@@ -171,9 +171,9 @@ void updateDefender(TypeDefender *Defender, TypeMissile *Missile)
 
     if (Defender->defender_event == MOVE_LEFT)
     {
-        if (Defender->pos.x > DefenderSPEED)
+        if (Defender-> pos.x > DefenderSPEED)
         {
-            Defender->pos.x-=DefenderSPEED;
+            Defender-> pos.x -=DefenderSPEED;
         }
     }
     if (Defender->defender_event == MOVE_RIGHT)
@@ -320,40 +320,50 @@ void drawInvaders(SDL_Renderer *ren, SDL_Texture *tex, Invader invaders[ROWS][CO
       sprite_y = 64;
       ++animation;
   }
-  else if (iterations%speed==0 && animation == 1)
+  else if (iterations % speed==0 && animation == 1)
   {
 
       sprite_y=128;
       ++animation;
 
   }
-  else if (iterations%speed ==0 && animation == 3)
+  else if (iterations % speed ==0 && animation == 3)
   {
       sprite_y=0;
       animation =0;
   }
 
+  int sprite_x = 0; // WHEN SPRITE BUILDED CHANGE TO int sprite_x
+  for(int r=0; r<ROWS; ++r)
+  {
+    for(int c=0; c<COLS; ++c)
+    {
+      switch(invaders[r][c].type) // Types switch  -- sets the SrcRx value
+      {                           // for rect to pick the correct type sprite
+      case TYPE1 : sprite_x = 0; break;
+      case TYPE2 : sprite_x = 0; break;
+      case TYPE3 : sprite_x = 0; break; //change values after to get the right sprite
+      }
+
+    }
+  }
+
+
   SDL_Rect SrcR;
-  SrcR.x=0;
+  SrcR.x=sprite_x;
   SrcR.y=sprite_y;
   SrcR.w=88;
   SrcR.h=64;
-
 
   for(int r=0; r<ROWS; ++r)
   {
     for(int c=0; c<COLS; ++c)
     {
-      switch(invaders[r][c].type)
-      {
-      case TYPE1 : SDL_SetRenderDrawColor(ren, 255, 0, 0, 255); break;
-      case TYPE2 : SDL_SetRenderDrawColor(ren, 0, 255, 0, 255); break;
-      case TYPE3 : SDL_SetRenderDrawColor(ren, 0, 0, 255, 255); break;
-      }
       if (invaders[r][c].active == 1) //If invader is not active - then not draw!
       {
           SDL_RenderFillRect(ren,&invaders[r][c].pos);
           SDL_RenderCopy(ren, tex,&SrcR,&invaders[r][c].pos);
+
       }
     }
   }
