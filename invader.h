@@ -2,11 +2,14 @@
 #define INVADER_H__
 
 //ENUMERATORS
+enum MissileType{M1,M2,M3};
 enum InvaderType{TYPE1,TYPE2,TYPE3};
 enum BOOL{FALSE,TRUE};
 enum InputControl{NONE,MOVE_LEFT,MOVE_RIGHT,SHOOT};
 
 //DEFENITIONS
+#define MISSILEHEIGHT 20
+#define MISSILEWIDTH 5
 #define SPRITEWIDTH 30
 #define SPRITEHEIGHT 30
 #define COLS 11
@@ -16,15 +19,24 @@ enum InputControl{NONE,MOVE_LEFT,MOVE_RIGHT,SHOOT};
 #define MissileSPEED 7
 #define SPEED 1
 #define ANIMATIONSPEED 15
+#define InvadersSPEED_AccIndx 5
 
 //Invader Structure
 typedef struct
 {
   SDL_Rect pos;
   int active;
-  int frame;
+//  int frame; // no need for frame
   enum InvaderType type;
 }Invader;
+
+//Invader Missile Structure
+typedef struct
+{
+    SDL_Rect posM;
+    enum BOOL active;
+    enum MissileType type;
+}InvaderMissile;
 
 //Missile Structure
 typedef struct
@@ -42,12 +54,14 @@ typedef struct
 }TypeDefender;
 
 // Function Declaration
+
+
 void PrintDebug(TypeDefender *Defender);
 void Controls(TypeDefender *Defender);
 
 void initializeDefender(TypeDefender *Defender);
 void initializeMissile(TypeMissile *Missile);
-void initializeInvaders(Invader invaders[ROWS][COLS]);
+void initializeInvaders(Invader invaders[ROWS][COLS],InvaderMissile misiiles[ROWS][COLS]);
 
 void drawDefender(SDL_Renderer *ren, SDL_Texture *tex,TypeDefender *Defender);
 void drawMissile(SDL_Renderer *ren, SDL_Texture *tex,TypeMissile *Missile);

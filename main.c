@@ -12,22 +12,33 @@
 #define HEIGHT 600
 
 
-int test = 0;
-int quit=0;
+enum BOOL test = FALSE; //Just a variable for any testing pusposes
+int quit = 0;
 
 int main()
 {
+    //Allocating memory
+  printf("Creating world...");
+   printf("DONE\n");
+
   Invader invaders[ROWS][COLS];
+  InvaderMissile missiles[ROWS][COLS];
   TypeDefender Defender;
   TypeMissile Missile;
-  printf("Programm Started.\n");
+
+  printf("Structure initialization...");
 
   initializeDefender(&Defender);
-  initializeInvaders(invaders);
+  initializeInvaders(invaders, missiles);
   initializeMissile(&Missile);
+
+   printf("DONE\n");
+
 
   // initialise SDL and check that it worked otherwise exit
   // see here for details http://wiki.libsdl.org/CategoryAPI
+
+   printf("Initializing SDL...");
   if (SDL_Init(SDL_INIT_EVERYTHING) == -1)
   {
     printf("%s\n",SDL_GetError());
@@ -57,6 +68,9 @@ int main()
     // however we will overdraw all of this so only for reference
   SDL_SetRenderDrawColor(ren, 255, 255, 255, 255);
 
+   printf("DONE\n");
+
+   printf("Loading textures...");
     // SDL image is an abstraction for all images
   SDL_Surface *image;
 
@@ -75,6 +89,9 @@ int main()
   tex = SDL_CreateTextureFromSurface(ren, image);
   // free the image
   SDL_FreeSurface(image);
+
+   printf("DONE\n");
+
 
   // now we are going to loop forever, process the keys then draw
   while (quit !=1)
@@ -134,34 +151,45 @@ void initializeMissile(TypeMissile *Missile)
 }
 
 //Initialize Invaders AND Missiles !!1!
-void initializeInvaders(Invader invaders[ROWS][COLS])
+void initializeInvaders(Invader invaders[ROWS][COLS],InvaderMissile missiles[ROWS][COLS])
 {
   SDL_Rect pos;
   pos.w=SPRITEWIDTH;
   pos.h=SPRITEHEIGHT;
   int ypos=GAP;
 
+  SDL_Rect posM;
+  posM.w=MISSILEWIDTH;
+  posM.h=MISSILEHEIGHT;
+
   for(int r=0; r<ROWS; ++r)
   {
     int xpos=GAP;
     for(int c=0; c<COLS; ++c)
     {
+      //Invader position
       pos.x=xpos+SPRITEWIDTH;
       pos.y=ypos+SPRITEHEIGHT;
       xpos+=(GAP+SPRITEWIDTH);
       invaders[r][c].pos=pos;
+
+      //Missile Position
+      pos.x=pos.x + SPRITEWIDTH/2 - MISSILEWIDTH/2;
+      pos.y=pos.y + MISSILEHEIGHT;
+      missiles[r][c].posM=posM;
+
       invaders[r][c].active=1;
-      invaders[r][c].frame=0;
+
       if(r==0)
         invaders[r][c].type=TYPE1;
       else if(r==1 || r==2)
         invaders[r][c].type=TYPE2;
       else
         invaders[r][c].type=TYPE3;
-
     }
     ypos+=(GAP+SPRITEHEIGHT);
   }
+
 }
 
 
@@ -201,7 +229,7 @@ void updateDefender(TypeDefender *Defender, TypeMissile *Missile)
         {
             Missile->pos.y = Missile->pos.y - MissileSPEED;
         }
-        else Missile->active = FALSE;  //cycle += 1;
+        else Missile->active = FALSE;
 
        Defender->defender_event = NONE;
        if (Missile->active == TRUE){
@@ -309,65 +337,58 @@ void drawMissile(SDL_Renderer *ren, SDL_Texture *tex,TypeMissile *Missile)
 //Draw Invaders
 void drawInvaders(SDL_Renderer *ren, SDL_Texture *tex, Invader invaders[ROWS][COLS])
 {
+    //Invader animation module//
    static int animation = 0;
    static int iterations = 0;
    ++iterations;
    static int sprite_y;
    int speed = ANIMATIONSPEED;
 
-  if ((iterations % speed==0 && animation == 0)||(iterations % speed==0 && animation == 2))
+  if ((iterations % speed==0 && animation==0) || (iterations % speed==0 && animation==2))
   {
       sprite_y = 64;
       ++animation;
   }
-  else if (iterations % speed==0 && animation == 1)
+  else if (iterations % speed==0 && animation==1)
   {
-
-      sprite_y=128;
+      sprite_y = 128;
       ++animation;
-
   }
-  else if (iterations % speed ==0 && animation == 3)
+  else if (iterations % speed==0 && animation==3)
   {
-      sprite_y=0;
-      animation =0;
+      sprite_y = 0;
+      animation = 0;
   }
 
-  int sprite_x = 0; // WHEN SPRITE BUILDED CHANGE TO int sprite_x
+  SDL_Rect SrcR;
+
+  int sprite_x; // WHEN SPRITE BUILDED CHANGE TO int sprite_x
+
   for(int r=0; r<ROWS; ++r)
   {
     for(int c=0; c<COLS; ++c)
     {
       switch(invaders[r][c].type) // Types switch  -- sets the SrcRx value
       {                           // for rect to pick the correct type sprite
-      case TYPE1 : sprite_x = 0; break;
-      case TYPE2 : sprite_x = 0; break;
-      case TYPE3 : sprite_x = 0; break; //change values after to get the right sprite
+          case TYPE1 : sprite_x = 0; break;
+          case TYPE2 : sprite_x = 0; break;
+          case TYPE3 : sprite_x = 88; break; //change values after to get the right sprite
       }
 
-    }
-  }
+      SrcR.x=sprite_x;
+      SrcR.y=sprite_y;
+      SrcR.w=88;
+      SrcR.h=64;
 
-
-  SDL_Rect SrcR;
-  SrcR.x=sprite_x;
-  SrcR.y=sprite_y;
-  SrcR.w=88;
-  SrcR.h=64;
-
-  for(int r=0; r<ROWS; ++r)
-  {
-    for(int c=0; c<COLS; ++c)
-    {
       if (invaders[r][c].active == 1) //If invader is not active - then not draw!
       {
           SDL_RenderFillRect(ren,&invaders[r][c].pos);
           SDL_RenderCopy(ren, tex,&SrcR,&invaders[r][c].pos);
-
       }
     }
   }
 }
+
 
 
 
@@ -390,14 +411,14 @@ void updateInvaders(Invader invaders[ROWS][COLS])
     for (int r = 0; r< ROWS; ++r)
     {
       if (invaders[r][c].active == 0)
-        inactive +=1;
+        ++inactive;
     }
     if (inactive == ROWS)
-      cols_inactive_L += 1;
+      ++cols_inactive_L;
     else break;
   }
 
-  // Checking if the col is active or inactive
+  // Checking if the coll is active or inactive
   // And setting number of inactive cols from left
   int cols_inactive_R = 0;
 
@@ -407,40 +428,44 @@ void updateInvaders(Invader invaders[ROWS][COLS])
     for (int r = 0; r< ROWS; ++r)
     {
       if (invaders[r][c].active == 0)
-        inactive +=1;
+        ++inactive;
     }
     if (inactive == ROWS)
-      cols_inactive_R +=1;
+      ++cols_inactive_R;
     else break;
   }
-  int speed_inc = 0;
+  int DIRECTION_changed = 0;
   static int cycle = 0;
-  // FOUND THE BUG!! <3
+
+  // FOUND THE BUG IN SOURCE CODE:
+  //Right invaders margin was counted with inexistand invader,
+  //no idea how this was possible but it worked before
+
+  //Invaders direction, speed, cycle (number of direction changes)
   if(invaders[0][COLS-1 - cols_inactive_R].pos.x>= (WIDTH - GAP) - SPRITEWIDTH)
   {
     DIRECTION=BWD;
     yinc=GAP;
-    printf("invader 0 - COLS pos.x = %d \n invader 0 - COLS - 1 pos.x = %d\n",invaders[0][COLS].pos.x, invaders[0][COLS -1].pos.x);
-    speed_inc = 1;
-      cycle += 1;
+
+    DIRECTION_changed = 1;
+      ++cycle;
   }
   else if(invaders[0][cols_inactive_L].pos.x<=SPRITEWIDTH)
   {
     DIRECTION=FWD;
     yinc=GAP;
-      cycle += 1;
+      ++cycle;
   }
 
 
   static int invader_speed = SPEED;
-  int speed_round = cycle % 5;
   if (cycle != 0)
       {
-      if (speed_round == 0)
+      if (cycle % InvadersSPEED_AccIndx == 0)
           {
-          if (speed_inc == 1)
+          if (DIRECTION_changed == 1)
             {
-                invader_speed +=1;
+                ++invader_speed;
             }
           }
       }
@@ -502,7 +527,7 @@ void Controls(TypeDefender *Defender)
         }
       }
     }
-    if (test == 1){
+    if (test == TRUE){
         Defender->defender_event = SHOOT;
         test = 0;
     }
