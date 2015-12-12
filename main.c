@@ -90,6 +90,17 @@ int main()
   // free the image
   SDL_FreeSurface(image);
 
+    SDL_Surface *image1;
+    image = IMG_Load("Missile_tex.bmp");
+    if(!image1)
+    {
+        printf("IMG_Load: %s\n", IMG_GetError());
+        //return EXIT_FAILURE;
+    }
+    SDL_Texture *tex1 = 0;
+    tex1 = SDL_CreateTextureFromSurface(ren, image1);
+    SDL_FreeSurface(image1);
+
    printf("DONE\n");
 
 
@@ -213,7 +224,7 @@ void updateDefender(TypeDefender *Defender, TypeMissile *Missile)
     }
 
 
-    if (Missile->active == FALSE)
+    if (!Missile->active)
     {
         Missile->pos.x = Defender->pos.x + ((Defender->pos.w - Missile->pos.w) / 2);
         Missile->pos.y = Defender->pos.y - Defender->pos.h;
@@ -223,7 +234,7 @@ void updateDefender(TypeDefender *Defender, TypeMissile *Missile)
     {
         Missile->active = TRUE;
     }
-    if (Missile->active == TRUE)
+    if (Missile->active)
     {
         if (Missile->pos.y> 0 - Missile->pos.h)
         {
@@ -232,7 +243,8 @@ void updateDefender(TypeDefender *Defender, TypeMissile *Missile)
         else Missile->active = FALSE;
 
        Defender->defender_event = NONE;
-       if (Missile->active == TRUE){
+       if (test)
+       {
            printf ("missile active\t");
            printf ("Missile X:%d Missile Y:%d\n", Missile->pos.x, Missile->pos.y);
        }
@@ -244,7 +256,7 @@ void updateDefender(TypeDefender *Defender, TypeMissile *Missile)
 void CollisionDetection(Invader invaders[ROWS][COLS], TypeMissile *Missile)
 {
 
-    if (Missile->active == TRUE)
+    if (Missile->active)
     {
 
         int collision = 0;
@@ -264,7 +276,10 @@ void CollisionDetection(Invader invaders[ROWS][COLS], TypeMissile *Missile)
                                 if(invaders[r][c].pos.y + invaders[r][c].pos.h >= Missile->pos.y)
                                 {
                                     //Collision
+                                    if (test)
+                                    {
                                     printf("Collision!!!\n");
+                                    }
                                     collision = 1;
                                     invaders[r][c].active = 0;
                                     Missile->active = FALSE;
@@ -272,7 +287,7 @@ void CollisionDetection(Invader invaders[ROWS][COLS], TypeMissile *Missile)
                             }
                         }
                     }
-                    if (collision != 1)
+                    if (!collision)
                     {
                         if (invaders[r][c].pos.x + invaders[r][c].pos.w >= Missile->pos.x + Missile->pos.w)
                         {
@@ -283,8 +298,11 @@ void CollisionDetection(Invader invaders[ROWS][COLS], TypeMissile *Missile)
                                     if(invaders[r][c].pos.y + invaders[r][c].pos.h >= Missile->pos.y)
                                     {
                                         //Collision
+                                        if (test)
+                                        {
                                         printf("Collision!!!\n");
-                                        if (Missile->active == TRUE)
+                                        }
+                                        if (Missile->active)
                                             collision = 1;
                                         invaders[r][c].active = 0;
                                         Missile->active = FALSE;
@@ -293,7 +311,7 @@ void CollisionDetection(Invader invaders[ROWS][COLS], TypeMissile *Missile)
                             }
                         }
                     }
-                if (collision == 1)
+                if (collision)
                     {
                     break;
                     }
@@ -487,13 +505,13 @@ void updateInvaders(Invader invaders[ROWS][COLS])
 //Debugging function
 void PrintDebug(TypeDefender *Defender)
 {
-    if (Defender->defender_event == SHOOT){
+    if (Defender->defender_event == SHOOT && test){
         printf("Defender: command shoot\n");
     }
-    if (Defender->defender_event == MOVE_LEFT){
+    if (Defender->defender_event == MOVE_LEFT && test){
         printf ("Defender: command left\n");
     }
-    if (Defender->defender_event == MOVE_RIGHT){
+    if (Defender->defender_event == MOVE_RIGHT && test){
         printf("Defender: command right\n");
     }
 }
@@ -522,13 +540,7 @@ void Controls(TypeDefender *Defender)
             break;
         case SDLK_RIGHT : Defender->defender_event = MOVE_RIGHT;
             break;
-
-
         }
       }
-    }
-    if (test == TRUE){
-        Defender->defender_event = SHOOT;
-        test = 0;
     }
 }
