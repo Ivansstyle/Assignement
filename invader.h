@@ -34,7 +34,7 @@ typedef struct
 typedef struct
 {
     SDL_Rect posM;
-    enum BOOL active;
+    enum BOOL activeM;
     enum MissileType type;
 }InvaderMissile;
 
@@ -66,11 +66,13 @@ void initializeInvaders(Invader invaders[ROWS][COLS],InvaderMissile misiiles[ROW
 void drawDefender(SDL_Renderer *ren, SDL_Texture *tex,TypeDefender *Defender);
 void drawMissile(SDL_Renderer *ren, SDL_Texture *tex,TypeMissile *Missile);
 void drawInvaders(SDL_Renderer *ren, SDL_Texture *tex,Invader invaders[ROWS][COLS]);
+void DrawInvaderMissiles(SDL_Renderer *ren, SDL_Texture *tex1, InvaderMissile missiles[ROWS][COLS]);
 
-void updateInvaders(Invader invaders[ROWS][COLS]);
+void updateInvaders(Invader invaders[ROWS][COLS], InvaderMissile missiles[ROWS][COLS]);
 void updateDefender(TypeDefender *Defender,TypeMissile *Missile);
 
 void CollisionDetection(Invader invaders[ROWS][COLS], TypeMissile *Missile);
+void CollisionDetectionDefender(TypeDefender *Defender, InvaderMissile missiles[ROWS][COLS]);
 
 #endif
 

@@ -5,19 +5,20 @@
 #include "invader.h"
 
 
-// include the map for the maze.
+
 // the width of the screen taking into account the maze and block
 #define WIDTH 800
 // the height of the screen taking into account the maze and block
 #define HEIGHT 600
 
 
-enum BOOL test = FALSE; //Just a variable for any testing pusposes
-int quit = 0;
+enum BOOL test = FALSE; //Just a variable for any testing pusposes or debugging
+
+int quit = 0; // Quit sequence trigger
 
 int main()
 {
-    //Allocating memory
+   // Added some information to see what is going on
   printf("Creating world...");
    printf("DONE\n");
 
@@ -91,7 +92,7 @@ int main()
   SDL_FreeSurface(image);
 
     SDL_Surface *image1;
-    image = IMG_Load("Missile_tex.bmp");
+    image1 = IMG_Load("Missile_tex.bmp"); //Forgot to change the variable
     if(!image1)
     {
         printf("IMG_Load: %s\n", IMG_GetError());
@@ -114,13 +115,14 @@ int main()
     SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
     SDL_RenderClear(ren);
 
-    updateInvaders(invaders);
+    updateInvaders(invaders, missiles);
     updateDefender(&Defender, &Missile);
 
     CollisionDetection(invaders, &Missile);
 
     drawDefender(ren,tex,&Defender);
     drawInvaders(ren,tex,invaders);
+    DrawInvaderMissiles(ren,tex1,missiles);
     drawMissile(ren,tex,&Missile);
 
      // Up until now everything was drawn behind the scenes.
@@ -190,6 +192,7 @@ void initializeInvaders(Invader invaders[ROWS][COLS],InvaderMissile missiles[ROW
       missiles[r][c].posM=posM;
 
       invaders[r][c].active=1;
+      missiles[r][c].activeM=FALSE;
 
       if(r==0)
         invaders[r][c].type=TYPE1;
@@ -252,7 +255,7 @@ void updateDefender(TypeDefender *Defender, TypeMissile *Missile)
     Defender->defender_event = NONE;
 }
 
-//Detecting Collision
+//Detecting Collision between DEFENDER MISSILE and INVADERS
 void CollisionDetection(Invader invaders[ROWS][COLS], TypeMissile *Missile)
 {
 
@@ -260,9 +263,9 @@ void CollisionDetection(Invader invaders[ROWS][COLS], TypeMissile *Missile)
     {
 
         int collision = 0;
+
         for (int r=ROWS-1;r>=0; --r)
         {
-
             for (int c=COLS-1;c>=0; --c)
             {
                 if (invaders[r][c].active == 1)
@@ -321,6 +324,18 @@ void CollisionDetection(Invader invaders[ROWS][COLS], TypeMissile *Missile)
     }
 }
 
+//Detectng Collision between INVADER MISSILE and DEFENDER
+void CollisionDetectionDefender(TypeDefender *Defender, InvaderMissile missiles[ROWS][COLS])
+{
+    for (int r=0; r<ROWS; ++r)
+    {
+        for (int c=0; c<COLS; ++c)
+        {
+          // if (SDL_IntersectRect(Defender->pos, missiles[r][c].posM,))
+        }
+    }
+
+}
 // Drawing defender
 void drawDefender(SDL_Renderer *ren, SDL_Texture *tex,TypeDefender *Defender)
 {
@@ -330,9 +345,11 @@ void drawDefender(SDL_Renderer *ren, SDL_Texture *tex,TypeDefender *Defender)
   SrcR.w=88;
   SrcR.h=64;
   SDL_SetRenderDrawColor(ren, 255, 0, 0, 255);
-  SDL_RenderFillRect(ren,&Defender->pos);
-  SDL_RenderCopy(ren, tex,&SrcR, &Defender->pos);
-
+  if (Defender->alive)
+  {
+      SDL_RenderFillRect(ren,&Defender->pos);
+      SDL_RenderCopy(ren, tex,&SrcR, &Defender->pos);
+  }
 }
 
 //Drawing Missile
@@ -408,12 +425,34 @@ void drawInvaders(SDL_Renderer *ren, SDL_Texture *tex, Invader invaders[ROWS][CO
 }
 
 
+//Drawing Invader Missiles
+void DrawInvaderMissiles(SDL_Renderer *ren, SDL_Texture *tex1, InvaderMissile missiles[ROWS][COLS])
+{
+   SDL_Rect SrcR;
+   SrcR.x=0;
+   SrcR.y=0;
+   SrcR.w=5;
+   SrcR.h=20;
+
+   for (int r=0; r<ROWS; ++r)
+   {
+       for (int c=0; c<COLS; ++c)
+       {
+           if(missiles[r][c].activeM)
+           {
+           SDL_RenderFillRect(ren,&missiles[r][c].posM);
+           SDL_RenderCopy(ren, tex1,&SrcR,&missiles[r][c].posM);
+           }
+       }
+   }
+}
+
 
 
 //PLAN!! update to invader/missile
 
 //Updating Invaders
-void updateInvaders(Invader invaders[ROWS][COLS])
+void updateInvaders(Invader invaders[ROWS][COLS], InvaderMissile missiles[ROWS][COLS])
 {
   enum DIR{FWD,BWD};
   static int DIRECTION=FWD;
@@ -460,7 +499,7 @@ void updateInvaders(Invader invaders[ROWS][COLS])
   //no idea how this was possible but it worked before
 
   //Invaders direction, speed, cycle (number of direction changes)
-  if(invaders[0][COLS-1 - cols_inactive_R].pos.x>= (WIDTH - GAP) - SPRITEWIDTH)
+  if(invaders[0][COLS-1 - cols_inactive_R].pos.x>= WIDTH - (2 * SPRITEWIDTH) )
   {
     DIRECTION=BWD;
     yinc=GAP;
@@ -487,17 +526,36 @@ void updateInvaders(Invader invaders[ROWS][COLS])
             }
           }
       }
-  for(int r=0; r<ROWS; ++r)
+  for (int r=0; r<ROWS-2; ++r)
   {
-    for(int c=0; c<COLS; ++c)
+    for (int c=0; c<COLS; ++c)
     {
       if(DIRECTION==FWD)
+      {
         invaders[r][c].pos.x+=invader_speed;
+      }
       else
+      {
         invaders[r][c].pos.x-=invader_speed;
+      }
 
       invaders[r][c].pos.y+=yinc;
 
+     // if(r / c * // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      if (rand() % 100000 == 13 && missiles[r][c].activeM == FALSE)
+      {
+          missiles[r][c].activeM = TRUE;
+      }
+      //glueing Missiles to invaders when inactive
+      if(!missiles[r][c].activeM || missiles[r][c].posM.y > HEIGHT)
+      {
+          missiles[r][c].posM.y=invaders[r][c].pos.y + SPRITEHEIGHT;
+          missiles[r][c].posM.x=invaders[r][c].pos.x + SPRITEWIDTH/2 - MISSILEWIDTH/2;
+      }
+      else
+      {
+          missiles[r][c].posM.y +=MissileSPEED;
+      }
     }
   }
 }
@@ -505,14 +563,17 @@ void updateInvaders(Invader invaders[ROWS][COLS])
 //Debugging function
 void PrintDebug(TypeDefender *Defender)
 {
-    if (Defender->defender_event == SHOOT && test){
-        printf("Defender: command shoot\n");
-    }
-    if (Defender->defender_event == MOVE_LEFT && test){
-        printf ("Defender: command left\n");
-    }
-    if (Defender->defender_event == MOVE_RIGHT && test){
-        printf("Defender: command right\n");
+    if (test)
+    {
+        if (Defender->defender_event == SHOOT){
+            printf("Defender: command shoot\n");
+        }
+        if (Defender->defender_event == MOVE_LEFT){
+            printf ("Defender: command left\n");
+        }
+        if (Defender->defender_event == MOVE_RIGHT){
+            printf("Defender: command right\n");
+        }
     }
 }
 
@@ -540,7 +601,14 @@ void Controls(TypeDefender *Defender)
             break;
         case SDLK_RIGHT : Defender->defender_event = MOVE_RIGHT;
             break;
+        case SDLK_t : test = TRUE;
         }
       }
     }
 }
+
+
+//Loader Functions:
+// Load textures:
+
+
